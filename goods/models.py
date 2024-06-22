@@ -6,6 +6,9 @@ class ProductCategory(models.Model):
     position = models.SmallIntegerField(unique=True)
     is_visible = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         ordering = ('position',)
         verbose_name_plural = 'Product Categories'
@@ -18,10 +21,13 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     discount = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     quantity = models.PositiveSmallIntegerField(default=0)
-    position = models.SmallIntegerField(unique=True)
+    position = models.SmallIntegerField()
     is_visible = models.BooleanField(default=True)
     category = models.ForeignKey(ProductCategory, on_delete=models.PROTECT)
 
     class Meta:
-        ordering = ('position',)
+        ordering = ('category', 'position',)
         verbose_name_plural = 'Products'
+        constraints = [
+            models.UniqueConstraint(fields=['position', 'category'], name='unique_position_per_each_category')
+        ]

@@ -12,8 +12,8 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('photo_src_tag', 'name', 'slug', 'description', 'photo', 'price', 'photo', 'price', 'discount',
-                    'quantity', 'position', 'is_visible')
-    list_editable = ('name', 'position', 'is_visible')
+                    'quantity', 'position', 'is_visible', 'category')
+    list_editable = ('name', 'position', 'is_visible', 'category')
     list_filter = ('category', 'is_visible')
     search_fields = ('name',)
 
