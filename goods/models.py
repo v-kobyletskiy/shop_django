@@ -19,7 +19,7 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     photo = models.ImageField(upload_to='products/', blank=True)
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
-    discount = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
+    discount = models.DecimalField(max_digits=4, decimal_places=2, default=0.00)
     quantity = models.PositiveSmallIntegerField(default=0)
     position = models.SmallIntegerField()
     is_visible = models.BooleanField(default=True)
