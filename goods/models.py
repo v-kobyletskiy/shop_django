@@ -31,3 +31,11 @@ class Product(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['position', 'category'], name='unique_position_per_each_category')
         ]
+
+    def display_id(self):
+        return f'{self.id:05}'
+
+    def sell_price(self):
+        if self.discount:
+            return round(self.price - self.discount/100*self.price, 2)
+        return self.price
