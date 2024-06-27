@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_list_or_404, render
 from django.core.paginator import Paginator
 
 from goods.models import Product
@@ -11,8 +11,8 @@ def catalog(request, category_slug, page=1):
     if category_slug == CATEGORY_ALL:
         goods = Product.objects.all()
     else:
-        goods = Product.objects.filter(category__slug=category_slug)
-        # goods = get_object_or_404(Product.objects.filter(category__slug=category_slug))
+        # goods = Product.objects.filter(category__slug=category_slug)
+        goods = get_list_or_404(Product.objects.filter(category__slug=category_slug))
 
     paginator = Paginator(goods, 3)
     current_page = paginator.page(page)
