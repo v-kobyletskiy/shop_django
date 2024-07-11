@@ -74,3 +74,7 @@ def logout(request):
     messages.success(request, f'{request.user.username}, you are now logged out')
     auth.logout(request)
     return redirect(reverse('home:home'))
+
+
+def users_cart(request):
+    return render(request, 'users-cart.html')
