@@ -12,5 +12,14 @@ class CartTabAdmin(admin.TabularInline):
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'product', 'quantity', 'created_at')
+    list_display = ('user_display', 'product_display', 'quantity', 'created_at')
     list_filter = ('created_at', 'user', 'product__name')
+
+    def user_display(self, obj):
+        if obj.user:
+            return str(obj.user)
+        return 'Anonymous user'
+
+    def product_display(self, obj):
+        return str(obj.product.name)
+
