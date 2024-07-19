@@ -22,7 +22,8 @@ class Cart(models.Model):
     session_key = models.CharField(max_length=32, blank=True, null=True)
 
     def __str__(self):
-        return f'Cart | {self.user.username} | Product {self.product.name} | Quantity {self.quantity}'
+        username = self.user.username if self.user else 'Anonymous'
+        return f'Cart | {username} | Product {self.product.name} | Quantity {self.quantity}'
 
     def products_price(self):
         return round(self.product.sell_price() * self.quantity, 2)
