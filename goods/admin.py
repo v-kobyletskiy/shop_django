@@ -2,21 +2,23 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from goods.models import ProductCategory, Product
 
+
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('id', 'name', 'slug', 'position', 'is_visible')
     list_editable = ('name', 'position', 'is_visible')
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('photo_src_tag', 'name', 'slug', 'price', 'discount',
                     'quantity', 'position', 'is_visible', 'category', 'description')
-    list_editable = ('name', 'slug', 'description', 'price', 'discount', 'quantity', 'position', 'is_visible',
-                     'category')
+    list_editable = ('name', 'slug', 'price', 'discount',
+                     'quantity', 'position', 'is_visible', 'category', 'description')
     list_filter = ('category', 'is_visible')
-    search_fields = ('name',)
+    search_fields = ('name', 'description',)
 
     def photo_src_tag(self, obj):
         if obj.photo:

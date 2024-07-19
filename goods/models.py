@@ -32,6 +32,9 @@ class Product(models.Model):
             models.UniqueConstraint(fields=['position', 'category'], name='unique_position_per_each_category')
         ]
 
+    def __str__(self):
+        return f'{self.name} Quantity - {self.quantity}'
+
     def display_id(self):
         return f'{self.id:05}'
 
