@@ -14,7 +14,6 @@ class OrderitemQueryset(models.QuerySet):
         return 0
 
 
-
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_DEFAULT, blank=True, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
