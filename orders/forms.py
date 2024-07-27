@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 
 class CreateOrderForm(forms.Form):
@@ -16,31 +18,14 @@ class CreateOrderForm(forms.Form):
             ('1', True)
         ],)
 
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data['phone_number']
 
+        if not phone_number.isdigit():
+            raise forms.ValidationError('Phone number must contain only digits')
 
-    # first_name = forms.CharField(
-    #     widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'})
-    # )
-    # last_name = forms.CharField(
-    #     widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'})
-    # )
-    # phone_number = forms.CharField(
-    #     widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'})
-    # )
-    # requires_delivery = forms.ChoiceField(
-    #     widget=forms.RadioSelect(),
-    #     choices=[('0', False), ('1', True)],
-    #     initial=0,
-    # )
-    # delivery_address = forms.CharField(
-    #     widget=forms.Textarea(attrs={
-    #         'class': 'form-control',
-    #         'id': 'delivery-address',
-    #         'rows': 2,
-    #         'placeholder': 'Delivery Address'})
-    # )
-    # payment_on_get = forms.ChoiceField(
-    #     widget=forms.RadioSelect(),
-    #     choices=[('0', False), ('1', True)],
-    #     initial='card',
-    # )
+        pattern = re.compile(r'^\d{10}$')
+        if not pattern.match(phone_number):
+            raise forms.ValidationError('Invalid phone number')
+
+        return phone_number
