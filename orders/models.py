@@ -26,6 +26,7 @@ class Order(models.Model):
 
     class Meta:
         verbose_name_plural = 'Orders'
+        ordering = ('id',)
 
     def __str__(self):
         return f'Order № {self.pk} | Buyer {self.user.first_name} {self.user.last_name}'
@@ -41,6 +42,7 @@ class OrderItem(models.Model):
 
     class Meta:
         verbose_name_plural = 'Order items'
+        ordering = ('id',)
 
     objects = OrderitemQueryset.as_manager()
 

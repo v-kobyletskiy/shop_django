@@ -1,4 +1,5 @@
-from django.shortcuts import get_list_or_404, render
+from django.http import Http404
+from django.shortcuts import render
 from django.core.paginator import Paginator
 
 from goods.models import Product
@@ -6,7 +7,6 @@ from goods.utils import query_search
 
 CATEGORY_ALL = 'all'
 
-# Create your views here.
 
 def catalog(request, category_slug=None):
     page = request.GET.get('page', 1)
@@ -19,8 +19,9 @@ def catalog(request, category_slug=None):
     elif query:
         goods = query_search(query)
     else:
-        # goods = Product.objects.filter(category__slug=category_slug)
-        goods = get_list_or_404(Product.objects.filter(category__slug=category_slug))
+        goods = Product.objects.filter(category__slug=category_slug)
+        if not goods.exists():
+            raise Http404()
     if on_sale:
         goods = goods.filter(discount__gt=0)
     if order_by and order_by != 'default':
@@ -42,4 +43,4 @@ def product(request, product_slug):
     context = {
         'product': product,
     }
-    return render(request, 'product.html', context=context)
+    return render(request, 'product.html', context)

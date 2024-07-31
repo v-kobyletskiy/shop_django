@@ -30,6 +30,7 @@ class Cart(models.Model):
         return round(self.product.sell_price() * self.quantity, 2)
 
     class Meta:
-        verbose_name_plural = "Cart"
+        verbose_name_plural = 'Cart'
+        ordering = ('id',)
 
     objects = CartQueryset.as_manager()
