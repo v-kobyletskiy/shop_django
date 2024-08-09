@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import auth, messages
 from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView
 
 from carts.models import Cart
 from orders.models import Order, OrderItem
@@ -46,67 +47,30 @@ class UserLoginView(LoginView):
         return context
 
 
-# def login(request):
-#     if request.method == 'POST':
-#         form = UserLoginForm(data=request.POST)
-#         if form.is_valid():
-#             username = request.POST['username']
-#             password = request.POST['password']
-#             user = auth.authenticate(username=username, password=password)
-#
-#             session_key = request.session.session_key
-#
-#             if user:
-#                 auth.login(request, user)
-#                 messages.success(request, f'{username}, you are now logged in')
-#
-#                 if session_key:
-#                     # delete old authorized user carts
-#                     forgot_carts = Cart.objects.filter(user=user)
-#                     if forgot_carts.exists():
-#                         forgot_carts.delete()
-#                     # add new authorized user carts from anonymous session
-#                     Cart.objects.filter(session_key=session_key).update(user=user)
-#
-#                 redirect_page = request.POST.get('next', None)
-#                 if redirect_page and redirect_page != reverse('user:logout'):
-#                     return HttpResponseRedirect(request.POST.get('next'))
-#
-#                 return HttpResponseRedirect(reverse('home:home'))
-#     else:
-#         form = UserLoginForm()
-#
-#     context = {
-#         'title': 'Home - Authorization',
-#         'form': form,
-#     }
-#     return render(request, 'login.html', context)
+class UserRegistrationView(CreateView):
+    template_name = 'register.html'
+    form_class = UserRegisterForm
+    success_url = reverse_lazy('user:profile')
 
+    def form_valid(self, form):
+        session_key = self.request.session.session_key
+        user = form.instance
 
-def register(request):
-    if request.method == 'POST':
-        form = UserRegisterForm(data=request.POST)
-        if form.is_valid():
+        if user:
             form.save()
+            auth.login(self.request, user)
 
-            session_key = request.session.session_key
+        if session_key:
+            Cart.objects.filter(session_key=session_key).update(user=user)
 
-            user = form.instance
-            auth.login(request, user)
+        messages.success(self.request, f'{user.username}, you are registered and logged in')
+        return HttpResponseRedirect(self.success_url)
 
-            if session_key:
-                Cart.objects.filter(session_key=session_key).update(user=user)
 
-            messages.success(request, f'{user.username}, you are registered and logged in')
-            return HttpResponseRedirect(reverse('home:home'))
-    else:
-        form = UserRegisterForm()
-
-    context = {
-        'title': 'Home - Register',
-        'form': form,
-    }
-    return render(request, 'register.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Home - Register'
+        return context
 
 
 @login_required
@@ -144,3 +108,65 @@ def logout(request):
 
 def users_cart(request):
     return render(request, 'users-cart.html')
+
+
+# def login(request):
+#     if request.method == 'POST':
+#         form = UserLoginForm(data=request.POST)
+#         if form.is_valid():
+#             username = request.POST['username']
+#             password = request.POST['password']
+#             user = auth.authenticate(username=username, password=password)
+#
+#             session_key = request.session.session_key
+#
+#             if user:
+#                 auth.login(request, user)
+#                 messages.success(request, f'{username}, you are now logged in')
+#
+#                 if session_key:
+#                     # delete old authorized user carts
+#                     forgot_carts = Cart.objects.filter(user=user)
+#                     if forgot_carts.exists():
+#                         forgot_carts.delete()
+#                     # add new authorized user carts from anonymous session
+#                     Cart.objects.filter(session_key=session_key).update(user=user)
+#
+#                 redirect_page = request.POST.get('next', None)
+#                 if redirect_page and redirect_page != reverse('user:logout'):
+#                     return HttpResponseRedirect(request.POST.get('next'))
+#
+#                 return HttpResponseRedirect(reverse('home:home'))
+#     else:
+#         form = UserLoginForm()
+#
+#     context = {
+#         'title': 'Home - Authorization',
+#         'form': form,
+#     }
+#     return render(request, 'login.html', context)
+
+# def register(request):
+#     if request.method == 'POST':
+#         form = UserRegisterForm(data=request.POST)
+#         if form.is_valid():
+#             form.save()
+#
+#             session_key = request.session.session_key
+#
+#             user = form.instance
+#             auth.login(request, user)
+#
+#             if session_key:
+#                 Cart.objects.filter(session_key=session_key).update(user=user)
+#
+#             messages.success(request, f'{user.username}, you are registered and logged in')
+#             return HttpResponseRedirect(reverse('home:home'))
+#     else:
+#         form = UserRegisterForm()
+#
+#     context = {
+#         'title': 'Home - Register',
+#         'form': form,
+#     }
+#     return render(request, 'register.html', context)
