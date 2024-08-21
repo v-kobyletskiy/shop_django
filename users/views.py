@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.db.models import Prefetch
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import auth, messages
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView, TemplateView
 
 from carts.models import Cart
 from orders.models import Order, OrderItem
@@ -73,30 +74,70 @@ class UserRegistrationView(CreateView):
         return context
 
 
-@login_required
-def profile(request):
-    if request.method == 'POST':
-        form = ProfileForm(data=request.POST, instance=request.user, files=request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Profile updated successfully')
-            return HttpResponseRedirect(reverse('user:profile'))
-    else:
-        form = ProfileForm(instance=request.user)
+class UserProfileView(LoginRequiredMixin, UpdateView):
+    template_name = 'profile.html'
+    form_class = ProfileForm
+    success_url = reverse_lazy('users:profile')
 
-    orders = (Order.objects.filter(user=request.user)
-              .prefetch_related(
-        Prefetch(
-            "orderitem_set",
-            queryset=OrderItem.objects.select_related("product"),
-        )
-    ).order_by("-id"))
-    context = {
-        'title': 'Home - Profile',
-        'form': form,
-        'orders': orders,
-    }
-    return render(request, 'profile.html', context)
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Profile updated successfully')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Error occurs')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Home - Profile'
+        context['orders'] = (Order.objects.filter(user=self.request.user).prefetch_related(
+                Prefetch(
+                    "orderitem_set",
+                    queryset=OrderItem.objects.select_related("product"),
+                )
+            ).order_by("-id"))
+        return context
+
+
+class UserCartView(TemplateView):
+    template_name = 'users-cart.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Home - Cart'
+        return context
+
+# def users_cart(request):
+#     return render(request, 'users-cart.html')
+
+
+# @login_required
+# def profile(request):
+#     if request.method == 'POST':
+#         form = ProfileForm(data=request.POST, instance=request.user, files=request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Profile updated successfully')
+#             return HttpResponseRedirect(reverse('user:profile'))
+#     else:
+#         form = ProfileForm(instance=request.user)
+#
+#     orders = (Order.objects.filter(user=request.user)
+#               .prefetch_related(
+#         Prefetch(
+#             "orderitem_set",
+#             queryset=OrderItem.objects.select_related("product"),
+#         )
+#     ).order_by("-id"))
+#     context = {
+#         'title': 'Home - Profile',
+#         'form': form,
+#         'orders': orders,
+#     }
+#     return render(request, 'profile.html', context)
 
 
 @login_required
@@ -104,10 +145,6 @@ def logout(request):
     messages.success(request, f'{request.user.username}, you are now logged out')
     auth.logout(request)
     return redirect(reverse('home:home'))
-
-
-def users_cart(request):
-    return render(request, 'users-cart.html')
 
 
 # def login(request):
